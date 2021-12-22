@@ -1,38 +1,45 @@
 import './App.css';
 import  React, { Component } from 'react';
 import {CardList} from './Components/card-list/card-list.component';
-import {SearchBox} from './Components/Search-box/search-box.component';
+
 
 class App extends Component {
   constructor(){
     super();
     this.state = {
       monsters: [],
-      searchField:''
+      searchField:'',
+      infinite:React.createRef(null),
+      pagecount:1
     };
   }
-  componentDidMount(){
-    fetch("https://jsonplaceholder.typicode.com/users")
+ 
+  getData=()=>{
+    fetch("https://api.pokemontcg.io/v2/cards?page=1&pageSize=10")
     .then(response=>response.json())
-    .then(users=>this.setState({monsters:users}));
-  }
-  handleChange =e=> {
-    this.setState({searchField: e.target.value});
+    .then(
+      users =>{
+        let s=this.state.monsters;
+        console.log('l',s)
+        s.concat(users.data);
+        console.log(users.data)
+        
+        this.setState({monsters:users.data})
+       });
   }
 
+  componentDidMount(){
+    this.getData();
+  }
+  
   render() 
     {
-      const {monsters,searchField} = this.state;
-      const filteredMonsters = monsters.filter(monster=>monster.name.toLowerCase().includes(searchField.toLowerCase()))
+ 
       return (
             <div className="App">
-              <h1>Monsters Rolodex</h1>
-              <SearchBox 
-               placeholder='search monsters'
-               handleChange={this.handleChange}
-              />
+              <h1>Monsters Rolodex</h1>          
               <CardList 
-              monsters={filteredMonsters}/>
+              monsters={this.state.monsters}/>
               </div>
             );
     }
